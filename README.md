@@ -1,2 +1,2 @@
-# GandORM  (..|o|..)
-GandORM - a high performance ORM based on JPA
+# VelocityORM  (..|o|..)
+VelocityORM - a high performance ORM based on JPA
