@@ -2,6 +2,9 @@ package com.velocityorm.test.entity;
 
 import com.velocityorm.core.annotation.*;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 @Entity
 @Table("users")
 public class User {

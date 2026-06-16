@@ -3,6 +3,9 @@ package com.velocityorm.core.cache;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class L1Cache {
     private final Map<Key, Object> cache = new HashMap<>();
 

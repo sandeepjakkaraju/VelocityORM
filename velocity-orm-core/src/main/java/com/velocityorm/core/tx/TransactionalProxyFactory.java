@@ -10,6 +10,9 @@ import net.bytebuddy.matcher.ElementMatchers;
 
 import java.lang.reflect.Method;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class TransactionalProxyFactory {
     private final TransactionManager txManager;
 

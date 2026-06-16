@@ -16,6 +16,9 @@ import java.sql.Connection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class VelocityORM {
     private final DataSource dataSource;
     private final Dialect dialect;

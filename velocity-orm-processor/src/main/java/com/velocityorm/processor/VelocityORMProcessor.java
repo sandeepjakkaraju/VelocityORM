@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 @SupportedAnnotationTypes("com.velocityorm.core.annotation.Entity")
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class VelocityORMProcessor extends AbstractProcessor {

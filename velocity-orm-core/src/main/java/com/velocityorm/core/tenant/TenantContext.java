@@ -1,5 +1,8 @@
 package com.velocityorm.core.tenant;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class TenantContext {
     private static final ThreadLocal<String> currentTenant = new ThreadLocal<>();
 

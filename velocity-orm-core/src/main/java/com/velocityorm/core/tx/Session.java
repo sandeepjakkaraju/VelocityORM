@@ -3,6 +3,9 @@ package com.velocityorm.core.tx;
 import com.velocityorm.core.cache.L1Cache;
 import java.sql.Connection;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class Session implements AutoCloseable {
     private final Connection connection;
     private final L1Cache l1Cache;

@@ -15,6 +15,9 @@ import com.velocityorm.core.tx.SessionContext;
 import java.sql.*;
 import java.util.*;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public abstract class BaseRepository<T, ID> implements Repository<T, ID> {
     protected final VelocityORM orm;
     protected final EntityMeta<T, ID> meta;

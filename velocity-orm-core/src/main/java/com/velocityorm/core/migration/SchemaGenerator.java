@@ -11,6 +11,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class SchemaGenerator {
     private static final Logger log = LoggerFactory.getLogger(SchemaGenerator.class);
 

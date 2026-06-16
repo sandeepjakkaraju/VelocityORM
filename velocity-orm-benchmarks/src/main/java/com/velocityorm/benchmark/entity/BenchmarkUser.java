@@ -2,6 +2,9 @@ package com.velocityorm.benchmark.entity;
 
 import com.velocityorm.core.annotation.*;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 @Entity
 @Table("benchmark_users")
 public class BenchmarkUser {

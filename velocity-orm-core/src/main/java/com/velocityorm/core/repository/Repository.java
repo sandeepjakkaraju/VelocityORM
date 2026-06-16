@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public interface Repository<T, ID> {
     T save(T entity) throws SQLException;
     T update(T entity) throws SQLException;

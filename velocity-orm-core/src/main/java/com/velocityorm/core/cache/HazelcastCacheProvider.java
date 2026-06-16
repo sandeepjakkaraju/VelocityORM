@@ -3,6 +3,9 @@ package com.velocityorm.core.cache;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class HazelcastCacheProvider implements CacheProvider {
     private final HazelcastInstance hazelcastInstance;
 

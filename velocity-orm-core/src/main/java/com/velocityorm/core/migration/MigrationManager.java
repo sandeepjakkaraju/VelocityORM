@@ -14,6 +14,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class MigrationManager {
     private static final Logger log = LoggerFactory.getLogger(MigrationManager.class);
     private final DataSource dataSource;

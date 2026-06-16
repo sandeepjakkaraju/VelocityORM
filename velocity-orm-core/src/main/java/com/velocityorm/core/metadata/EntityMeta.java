@@ -5,6 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public interface EntityMeta<T, ID> {
     Class<T> getEntityClass();
     String getTableName();

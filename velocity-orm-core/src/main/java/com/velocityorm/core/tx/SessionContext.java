@@ -1,5 +1,8 @@
 package com.velocityorm.core.tx;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class SessionContext {
     private static final ThreadLocal<Session> currentSession = new ThreadLocal<>();
 

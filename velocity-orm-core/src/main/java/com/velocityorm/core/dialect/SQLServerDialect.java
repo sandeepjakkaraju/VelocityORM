@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class SQLServerDialect implements Dialect {
 
     @Override

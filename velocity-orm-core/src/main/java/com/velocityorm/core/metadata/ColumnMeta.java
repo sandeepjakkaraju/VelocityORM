@@ -1,5 +1,8 @@
 package com.velocityorm.core.metadata;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class ColumnMeta {
     private final String columnName;
     private final String fieldName;

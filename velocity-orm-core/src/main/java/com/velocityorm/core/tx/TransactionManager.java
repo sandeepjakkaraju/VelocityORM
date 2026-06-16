@@ -5,6 +5,9 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class TransactionManager {
     private final DataSource dataSource;
 

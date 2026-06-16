@@ -2,6 +2,9 @@ package com.velocityorm.core.tx;
 
 import java.sql.Savepoint;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class TransactionStatus {
     private final Session session;
     private final boolean isNewSession;

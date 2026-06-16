@@ -13,6 +13,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class Query<T> {
     private final EntityMeta<T, ?> meta;
     private final Dialect dialect;

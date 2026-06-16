@@ -2,6 +2,9 @@ package com.velocityorm.core.cache;
 
 import java.io.*;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class SerializationUtils {
     public static byte[] serialize(Object obj) {
         if (obj == null) return null;

@@ -7,6 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+/**
+ * @author sandeepkumarjakkaraju
+ */
 public class EncryptionService {
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
     private final SecretKeySpec keySpec;
