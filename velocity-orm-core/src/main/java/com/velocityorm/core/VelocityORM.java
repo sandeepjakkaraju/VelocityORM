@@ -48,7 +48,7 @@ public class VelocityORM {
             try {
                 EntityMeta<T, ID> meta = entityMeta(entityClass);
                 String repoImplName = clazz.getName() + "RepositoryImpl";
-                Class<?> repoImplClass = Class.forName(repoImplName);
+                Class<?> repoImplClass = Class.forName(repoImplName, true, clazz.getClassLoader());
                 Constructor<?> ctor = repoImplClass.getConstructor(VelocityORM.class, EntityMeta.class);
                 return (Repository<?, ?>) ctor.newInstance(this, meta);
             } catch (Exception e) {
@@ -62,7 +62,7 @@ public class VelocityORM {
         return (EntityMeta<T, ID>) entityMetas.computeIfAbsent(entityClass, clazz -> {
             try {
                 String metaName = clazz.getName() + "Meta";
-                Class<?> metaClass = Class.forName(metaName);
+                Class<?> metaClass = Class.forName(metaName, true, clazz.getClassLoader());
                 return (EntityMeta<?, ?>) metaClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new RuntimeException("Failed to load metadata class for entity: " + clazz.getName(), e);

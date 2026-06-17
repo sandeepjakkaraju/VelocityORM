@@ -38,20 +38,24 @@ public class ProcedureGenerator {
 
     private void generateProc(Connection conn, Statement stmt, EntityMeta<?, ?> meta, String action, List<String> ddlList) throws SQLException {
         String procName = "sp_" + meta.getTableName() + "_" + action;
-        // Check if procedure exists
-        if (!dialect.procedureExists(conn, procName)) {
-            log.info("Procedure '{}' does not exist. Creating...", procName);
-            for (String ddl : ddlList) {
-                log.debug("Executing DDL: {}", ddl);
-                try {
-                    stmt.execute(ddl);
-                } catch (SQLException e) {
-                    // Try execution in block, some ddl commands like DROP might fail if not exists
-                    log.debug("Ddl sub-command error (ignorable if clean drop/create): {}", e.getMessage());
-                }
+        log.info("Re-creating procedure '{}'...", procName);
+        try {
+            stmt.execute("DROP PROCEDURE IF EXISTS " + procName);
+        } catch (SQLException e) {
+            try {
+                stmt.execute("DROP PROCEDURE " + procName);
+            } catch (SQLException ex) {
+                // Ignore if it does not exist
             }
-        } else {
-            log.info("Procedure '{}' already exists. Skipping.", procName);
+        }
+        for (String ddl : ddlList) {
+            log.debug("Executing DDL: {}", ddl);
+            try {
+                stmt.execute(ddl);
+            } catch (SQLException e) {
+                // Try execution in block, some ddl commands like DROP might fail if not exists
+                log.debug("Ddl sub-command error (ignorable if clean drop/create): {}", e.getMessage());
+            }
         }
     }
 }

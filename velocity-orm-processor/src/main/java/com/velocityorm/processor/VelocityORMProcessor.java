@@ -54,44 +54,35 @@ public class VelocityORMProcessor extends AbstractProcessor {
         String createdAtFieldName = null;
         String updatedAtFieldName = null;
 
-        for (Element enclosed : classElement.getEnclosedElements()) {
-            if (enclosed.getKind() == ElementKind.FIELD) {
-                VariableElement field = (VariableElement) enclosed;
-                
-                if (field.getAnnotation(Ignore.class) != null || field.getAnnotation(Transient.class) != null ||
-                        field.getModifiers().contains(Modifier.TRANSIENT)) {
-                    continue;
-                }
+        for (VariableElement field : getFieldsRecursively(classElement)) {
+            String fName = field.getSimpleName().toString();
+            String fType = cleanType(field.asType().toString());
+            
+            Column colAnn = field.getAnnotation(Column.class);
+            String cName = (colAnn != null && !colAnn.name().isEmpty()) ? colAnn.name() : fName;
+            boolean nullable = colAnn == null || colAnn.nullable();
+            int length = colAnn != null ? colAnn.length() : 255;
+            boolean unique = colAnn != null && colAnn.unique();
 
-                String fName = field.getSimpleName().toString();
-                String fType = field.asType().toString();
-                
-                Column colAnn = field.getAnnotation(Column.class);
-                String cName = (colAnn != null && !colAnn.name().isEmpty()) ? colAnn.name() : fName;
-                boolean nullable = colAnn == null || colAnn.nullable();
-                int length = colAnn != null ? colAnn.length() : 255;
-                boolean unique = colAnn != null && colAnn.unique();
+            boolean isId = field.getAnnotation(Id.class) != null;
+            boolean isGenerated = field.getAnnotation(GeneratedValue.class) != null;
+            boolean isVersion = field.getAnnotation(Version.class) != null;
+            boolean isCreatedAt = field.getAnnotation(CreatedAt.class) != null;
+            boolean isUpdatedAt = field.getAnnotation(UpdatedAt.class) != null;
+            boolean isEncrypted = field.getAnnotation(Encrypted.class) != null;
 
-                boolean isId = field.getAnnotation(Id.class) != null;
-                boolean isGenerated = field.getAnnotation(GeneratedValue.class) != null;
-                boolean isVersion = field.getAnnotation(Version.class) != null;
-                boolean isCreatedAt = field.getAnnotation(CreatedAt.class) != null;
-                boolean isUpdatedAt = field.getAnnotation(UpdatedAt.class) != null;
-                boolean isEncrypted = field.getAnnotation(Encrypted.class) != null;
-
-                if (isId) {
-                    idFieldName = fName;
-                    idColumnName = cName;
-                    idType = getBoxedType(fType);
-                    isIdGenerated = isGenerated;
-                }
-
-                if (isVersion) versionFieldName = fName;
-                if (isCreatedAt) createdAtFieldName = fName;
-                if (isUpdatedAt) updatedAtFieldName = fName;
-
-                fields.add(new FieldInfo(fName, cName, fType, nullable, length, unique, isId, isVersion, isCreatedAt, isUpdatedAt, isEncrypted));
+            if (isId) {
+                idFieldName = fName;
+                idColumnName = cName;
+                idType = getBoxedType(fType);
+                isIdGenerated = isGenerated;
             }
+
+            if (isVersion) versionFieldName = fName;
+            if (isCreatedAt) createdAtFieldName = fName;
+            if (isUpdatedAt) updatedAtFieldName = fName;
+
+            fields.add(new FieldInfo(fName, cName, fType, nullable, length, unique, isId, isVersion, isCreatedAt, isUpdatedAt, isEncrypted));
         }
 
         if (idFieldName == null) {
@@ -254,13 +245,10 @@ public class VelocityORMProcessor extends AbstractProcessor {
         String repoImplName = className + "RepositoryImpl";
         
         String idType = "Long";
-        for (Element enclosed : classElement.getEnclosedElements()) {
-            if (enclosed.getKind() == ElementKind.FIELD) {
-                VariableElement field = (VariableElement) enclosed;
-                if (field.getAnnotation(Id.class) != null) {
-                    idType = getBoxedType(field.asType().toString());
-                    break;
-                }
+        for (VariableElement field : getFieldsRecursively(classElement)) {
+            if (field.getAnnotation(Id.class) != null) {
+                idType = getBoxedType(cleanType(field.asType().toString()));
+                break;
             }
         }
 
@@ -331,6 +319,9 @@ public class VelocityORMProcessor extends AbstractProcessor {
         if ("java.time.LocalDateTime".equals(f.type)) {
             return "rs.getTimestamp(" + col + ") != null ? rs.getTimestamp(" + col + ").toLocalDateTime() : null";
         }
+        if ("java.time.LocalDate".equals(f.type)) {
+            return "rs.getObject(" + col + ") != null ? rs.getObject(" + col + ", java.time.LocalDate.class) : null";
+        }
         if ("java.util.Date".equals(f.type)) {
             return "rs.getTimestamp(" + col + ")";
         }
@@ -376,5 +367,39 @@ public class VelocityORMProcessor extends AbstractProcessor {
             if (t.equals("boolean")) return "java.lang.Boolean";
             return t;
         }
+    }
+
+    private String cleanType(String type) {
+        if (type == null) return null;
+        return type.replaceAll("@[a-zA-Z0-9_.]+(\\([^)]*\\))?\\s*", "");
+    }
+
+    private List<VariableElement> getFieldsRecursively(TypeElement classElement) {
+        List<TypeElement> classes = new ArrayList<>();
+        TypeElement current = classElement;
+        while (current != null && !current.getQualifiedName().toString().equals("java.lang.Object")) {
+            classes.add(current);
+            TypeMirror superclass = current.getSuperclass();
+            if (superclass instanceof javax.lang.model.type.DeclaredType) {
+                current = (TypeElement) ((javax.lang.model.type.DeclaredType) superclass).asElement();
+            } else {
+                current = null;
+            }
+        }
+        
+        List<VariableElement> fields = new ArrayList<>();
+        for (int i = classes.size() - 1; i >= 0; i--) {
+            for (Element enclosed : classes.get(i).getEnclosedElements()) {
+                if (enclosed.getKind() == ElementKind.FIELD) {
+                    VariableElement field = (VariableElement) enclosed;
+                    if (field.getAnnotation(Ignore.class) != null || field.getAnnotation(Transient.class) != null ||
+                            field.getModifiers().contains(Modifier.TRANSIENT)) {
+                        continue;
+                    }
+                    fields.add(field);
+                }
+            }
+        }
+        return fields;
     }
 }
