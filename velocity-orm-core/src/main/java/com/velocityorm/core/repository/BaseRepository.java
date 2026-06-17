@@ -36,8 +36,19 @@ public abstract class BaseRepository<T, ID> implements Repository<T, ID> {
 
     protected Session getSession() throws SQLException {
         Session session = SessionContext.getCurrentSession();
+        if (session != null) {
+            try {
+                if (session.getConnection().isClosed()) {
+                    SessionContext.clear();
+                    session = null;
+                }
+            }
+            catch (SQLException ex) {
+                SessionContext.clear();
+                session = null;
+            }
+        }
         if (session == null) {
-            // Non-transactional execution, open a temporary session/connection
             Connection conn = orm.getDataSource().getConnection();
             session = new Session(conn);
             SessionContext.setCurrentSession(session);
@@ -46,12 +57,18 @@ public abstract class BaseRepository<T, ID> implements Repository<T, ID> {
     }
 
     private void releaseSession(Session session) {
-        if (!session.isInTransaction()) {
-            try {
-                session.close();
-            } catch (Exception e) {
-                // ignore
+        try {
+            if (!session.isInTransaction()) {
+                Connection conn = session.getConnection();
+                if (conn != null && conn.getAutoCommit()) {
+                    session.close();
+                }
             }
+        }
+        catch (Exception e) {
+            // ignore
+        }
+        finally {
             SessionContext.clear();
         }
     }

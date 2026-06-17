@@ -37,6 +37,8 @@ public class PostgresDialect implements Dialect {
             return "NUMERIC";
         } else if (type == java.time.LocalDateTime.class || type == java.util.Date.class) {
             return "TIMESTAMP";
+        } else if (type == java.time.LocalDate.class) {
+            return "DATE";
         }
         return "VARCHAR(255)";
     }
@@ -57,6 +59,8 @@ public class PostgresDialect implements Dialect {
             return "numeric";
         } else if (type == java.time.LocalDateTime.class || type == java.util.Date.class) {
             return "timestamp";
+        } else if (type == java.time.LocalDate.class) {
+            return "date";
         }
         return "varchar";
     }

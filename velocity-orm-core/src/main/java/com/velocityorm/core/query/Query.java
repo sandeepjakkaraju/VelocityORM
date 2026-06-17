@@ -4,6 +4,7 @@ import com.velocityorm.core.dialect.Dialect;
 import com.velocityorm.core.metadata.ColumnMeta;
 import com.velocityorm.core.metadata.EntityMeta;
 import com.velocityorm.core.tx.Session;
+import com.velocityorm.core.tx.SessionContext;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -138,37 +139,41 @@ public class Query<T> {
     }
 
     public List<T> list() throws SQLException {
-        String sql = buildSelectSql();
-        List<T> results = new ArrayList<>();
-        
-        try (PreparedStatement ps = session.getConnection().prepareStatement(sql)) {
-            int paramIndex = 1;
-            for (Criterion crit : criteria) {
-                if (crit.value != null) {
-                    if (crit.value instanceof Collection) {
-                        for (Object val : (Collection<?>) crit.value) {
-                            ps.setObject(paramIndex++, val);
+        try {
+            String sql = buildSelectSql();
+            List<T> results = new ArrayList<>();
+            
+            try (PreparedStatement ps = session.getConnection().prepareStatement(sql)) {
+                int paramIndex = 1;
+                for (Criterion crit : criteria) {
+                    if (crit.value != null) {
+                        if (crit.value instanceof Collection) {
+                            for (Object val : (Collection<?>) crit.value) {
+                                ps.setObject(paramIndex++, val);
+                            }
+                        } else if (crit.value instanceof List && "BETWEEN".equals(crit.operator)) {
+                            for (Object val : (List<?>) crit.value) {
+                                ps.setObject(paramIndex++, val);
+                            }
+                        } else {
+                            ps.setObject(paramIndex++, crit.value);
                         }
-                    } else if (crit.value instanceof List && "BETWEEN".equals(crit.operator)) {
-                        for (Object val : (List<?>) crit.value) {
-                            ps.setObject(paramIndex++, val);
-                        }
-                    } else {
-                        ps.setObject(paramIndex++, crit.value);
+                    }
+                }
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        T entity = meta.mapRow(rs);
+                        Object id = meta.getId(entity);
+                        session.getL1Cache().put(meta.getEntityClass(), id, entity);
+                        results.add(entity);
                     }
                 }
             }
-            
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    T entity = meta.mapRow(rs);
-                    Object id = meta.getId(entity);
-                    session.getL1Cache().put(meta.getEntityClass(), id, entity);
-                    results.add(entity);
-                }
-            }
+            return results;
+        } finally {
+            releaseSessionIfNeeded();
         }
-        return results;
     }
 
     public Optional<T> one() throws SQLException {
@@ -178,31 +183,49 @@ public class Query<T> {
     }
 
     public long count() throws SQLException {
-        String sql = buildCountSql();
-        try (PreparedStatement ps = session.getConnection().prepareStatement(sql)) {
-            int paramIndex = 1;
-            for (Criterion crit : criteria) {
-                if (crit.value != null) {
-                    if (crit.value instanceof Collection) {
-                        for (Object val : (Collection<?>) crit.value) {
-                            ps.setObject(paramIndex++, val);
+        try {
+            String sql = buildCountSql();
+            try (PreparedStatement ps = session.getConnection().prepareStatement(sql)) {
+                int paramIndex = 1;
+                for (Criterion crit : criteria) {
+                    if (crit.value != null) {
+                        if (crit.value instanceof Collection) {
+                            for (Object val : (Collection<?>) crit.value) {
+                                ps.setObject(paramIndex++, val);
+                            }
+                        } else if (crit.value instanceof List && "BETWEEN".equals(crit.operator)) {
+                            for (Object val : (List<?>) crit.value) {
+                                ps.setObject(paramIndex++, val);
+                            }
+                        } else {
+                            ps.setObject(paramIndex++, crit.value);
                         }
-                    } else if (crit.value instanceof List && "BETWEEN".equals(crit.operator)) {
-                        for (Object val : (List<?>) crit.value) {
-                            ps.setObject(paramIndex++, val);
-                        }
-                    } else {
-                        ps.setObject(paramIndex++, crit.value);
+                    }
+                }
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getLong(1);
                     }
                 }
             }
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong(1);
+            return 0;
+        } finally {
+            releaseSessionIfNeeded();
+        }
+    }
+
+    private void releaseSessionIfNeeded() {
+        try {
+            if (!session.isInTransaction()) {
+                var conn = session.getConnection();
+                if (conn != null && conn.getAutoCommit()) {
+                    session.close();
                 }
             }
+        } catch (Exception ignored) {
+        } finally {
+            SessionContext.clear();
         }
-        return 0;
     }
 
     private String buildSelectSql() {

@@ -47,7 +47,7 @@ public class VelocityORM {
         return (Repository<T, ID>) repositoryCache.computeIfAbsent(entityClass, clazz -> {
             try {
                 EntityMeta<T, ID> meta = entityMeta(entityClass);
-                String repoImplName = clazz.getName() + "RepositoryImpl";
+                String repoImplName = clazz.getName() + "VelocityRepositoryImpl";
                 Class<?> repoImplClass = Class.forName(repoImplName, true, clazz.getClassLoader());
                 Constructor<?> ctor = repoImplClass.getConstructor(VelocityORM.class, EntityMeta.class);
                 return (Repository<?, ?>) ctor.newInstance(this, meta);

@@ -18,7 +18,7 @@
         <module>velocity-orm-reactive</module>
         <module>velocity-orm-test</module>
         <module>velocity-orm-benchmarks</module>
-        <module>spring-petclinic</module>
+        <module>spring-petclinic-velocityorm</module>
     </modules>
 
     <properties>

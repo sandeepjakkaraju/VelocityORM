@@ -242,7 +242,7 @@ public class VelocityORMProcessor extends AbstractProcessor {
     private void generateRepositoryImplClass(TypeElement classElement) throws Exception {
         String packageName = processingEnv.getElementUtils().getPackageOf(classElement).getQualifiedName().toString();
         String className = classElement.getSimpleName().toString();
-        String repoImplName = className + "RepositoryImpl";
+        String repoImplName = className + "VelocityRepositoryImpl";
         
         String idType = "Long";
         for (VariableElement field : getFieldsRecursively(classElement)) {
@@ -320,7 +320,7 @@ public class VelocityORMProcessor extends AbstractProcessor {
             return "rs.getTimestamp(" + col + ") != null ? rs.getTimestamp(" + col + ").toLocalDateTime() : null";
         }
         if ("java.time.LocalDate".equals(f.type)) {
-            return "rs.getObject(" + col + ") != null ? rs.getObject(" + col + ", java.time.LocalDate.class) : null";
+            return "rs.getDate(" + col + ") != null ? rs.getDate(" + col + ").toLocalDate() : null";
         }
         if ("java.util.Date".equals(f.type)) {
             return "rs.getTimestamp(" + col + ")";
