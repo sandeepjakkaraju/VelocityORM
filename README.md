@@ -167,3 +167,74 @@ If VelocityORM can demonstrate:
 
 then it could be a compelling alternative for performance-sensitive backend systems.
 
+
+
+Yes — a visual benchmark chart will make your README much stronger. A simple **bar chart comparing Requests/sec** is usually the most compelling.
+
+### README Section Example
+
+## Benchmark Visualization
+
+### Requests/sec Comparison
+
+---
+
+### Latency Comparison (Average)
+
+---
+
+## Nice GitHub README Formatting
+
+You can add a section like this:
+
+```markdown
+# Performance Benchmarks
+
+VelocityORM was benchmarked against the default Spring PetClinic ORM stack using wrk.
+
+## Highlights
+- Up to **7% higher throughput**
+- Up to **42% lower tail latency**
+- Lower average response time across all tested endpoints
+```
+
+---
+
+## Even Better (for GitHub stars)
+
+I strongly recommend adding **benchmark badges** near the top of your README:
+
+```md
+![Throughput](https://img.shields.io/badge/Throughput-Up%20to%207%25%20Higher-brightgreen)
+![Latency](https://img.shields.io/badge/Latency-Up%20to%2042%25%20Lower-blue)
+![Java](https://img.shields.io/badge/Java-17+-orange)
+```
+
+---
+
+
+
+VelocityORM vs Default PetClinic
+
+Throughput comparison (higher is better) across benchmarked endpoints.
+
+endpoint	rps
+Default /vets	1,061
+Velocity /vets	1,076
+Default owner search	1,036
+Velocity owner search	1,109
+Default pagination	582
+Velocity pagination	620
+
+Average Latency Comparison
+
+Average response time (lower is better).
+
+endpoint	latency
+Default /vets	195
+Velocity /vets	189
+Default owner search	202
+Velocity owner search	189
+Default pagination	346
+Velocity pagination	321
+
