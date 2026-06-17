@@ -147,7 +147,14 @@ If I were designing VelocityORM today, I would include:
 | Performance Focus      | Medium    | High    | High   | Very High    |
 | Learning Curve         | High      | Medium  | Medium | Low (Goal)   |
 
-### My Assessment
+| Feature                      | VelocityORM | Hibernate | jOOQ    | MyBatis |
+| ---------------------------- | ----------- | --------- | ------- | ------- |
+| Compile-time code generation | ✅           | ❌         | Partial | ❌       |
+| Stored procedure CRUD        | ✅           | ❌         | ❌       | Manual  |
+| Reflection-free runtime      | ✅           | ❌         | ✅       | ✅       |
+| Performance focus            | ✅           | ⚠️        | ✅       | ✅       |
+
+
 
 For the kind of enterprise and fintech systems you've worked on, a **stored-procedure-first ORM** is an interesting niche. Most modern Java ORMs focus on developer productivity, while very few focus on maximizing database execution efficiency.
 
