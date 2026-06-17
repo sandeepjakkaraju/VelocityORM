@@ -169,72 +169,107 @@ then it could be a compelling alternative for performance-sensitive backend syst
 
 
 
-Yes — a visual benchmark chart will make your README much stronger. A simple **bar chart comparing Requests/sec** is usually the most compelling.
+# 🚀 VelocityORM Performance Benchmarks
 
-### README Section Example
+VelocityORM was benchmarked against the default Spring PetClinic ORM stack using [`wrk`](https://github.com/wg/wrk).
 
-## Benchmark Visualization
+## Benchmark Environment
 
-### Requests/sec Comparison
+- Application: Spring PetClinic
+- Database: PostgreSQL
+- Tool: `wrk`
+- Duration: 60 seconds
+- Threads: 8
+- Connections: 200
+- Java: 17+
 
 ---
 
-### Latency Comparison (Average)
+## Performance Highlights
+
+✅ Up to **7% higher throughput**  
+✅ Up to **42% lower tail latency**  
+✅ Lower average response time across all tested endpoints  
 
 ---
 
-## Nice GitHub README Formatting
+## Benchmark Summary
 
-You can add a section like this:
+| Endpoint | Default RPS | VelocityORM RPS | Improvement |
+|----------|-------------|-----------------|-------------|
+| `/vets.html` | 1061 | 1076 | **+1.34%** |
+| `/owners?lastName=Davis` | 1036 | 1109 | **+7.01%** |
+| `/owners?page=2` | 582 | 620 | **+6.48%** |
 
-```markdown
-# Performance Benchmarks
+---
 
-VelocityORM was benchmarked against the default Spring PetClinic ORM stack using wrk.
+# Requests/sec Comparison (Higher is Better)
 
-## Highlights
-- Up to **7% higher throughput**
-- Up to **42% lower tail latency**
-- Lower average response time across all tested endpoints
+```mermaid
+xychart-beta
+    title "Requests/sec Comparison"
+    x-axis [Vets_Default, Vets_Velocity, Search_Default, Search_Velocity, Page_Default, Page_Velocity]
+    y-axis "RPS" 0 --> 1200
+    bar [1061, 1076, 1036, 1109, 582, 620]
 ```
 
 ---
 
-## Even Better (for GitHub stars)
+# Average Latency (Lower is Better)
 
-I strongly recommend adding **benchmark badges** near the top of your README:
+| Endpoint | Default | VelocityORM |
+|----------|---------|-------------|
+| `/vets.html` | 194.99 ms | 188.79 ms |
+| `/owners?lastName=Davis` | 201.62 ms | 188.91 ms |
+| `/owners?page=2` | 345.96 ms | 321.28 ms |
 
-```md
-![Throughput](https://img.shields.io/badge/Throughput-Up%20to%207%25%20Higher-brightgreen)
-![Latency](https://img.shields.io/badge/Latency-Up%20to%2042%25%20Lower-blue)
+```mermaid
+xychart-beta
+    title "Average Latency"
+    x-axis [Vets_Default, Vets_Velocity, Search_Default, Search_Velocity, Page_Default, Page_Velocity]
+    y-axis "Latency(ms)" 0 --> 400
+    bar [195, 189, 202, 189, 346, 321]
+```
+
+---
+
+# Tail Latency (Max Response Time)
+
+```mermaid
+xychart-beta
+    title "Worst Case Latency"
+    x-axis [Vets_Default, Vets_Velocity, Search_Default, Search_Velocity, Page_Default, Page_Velocity]
+    y-axis "Latency(ms)" 0 --> 2000
+    bar [1150, 973, 1820, 1050, 1410, 1240]
+```
+
+---
+
+## Key Observations
+
+### Lightweight Endpoint (`/vets.html`)
+Minimal improvement because rendering dominates ORM cost.
+
+### Filtered Search (`/owners?lastName=Davis`)
+VelocityORM shows significant gains:
+- +7% throughput
+- 42% lower worst-case latency
+
+### Pagination (`/owners?page=2`)
+Improvement due to more efficient row mapping and hydration.
+
+---
+
+## Conclusion
+
+VelocityORM consistently outperforms the default ORM implementation in Spring PetClinic, especially for database-heavy workloads involving filtering and pagination.
+
+> VelocityORM improves throughput by **6–7%** and reduces tail latency by up to **42%** on read-heavy workloads.
+
+---
+
+## Badges
+
+![Performance](https://img.shields.io/badge/Performance-Up%20to%207%25%20Faster-brightgreen)
+![Latency](https://img.shields.io/badge/Tail%20Latency-42%25%20Lower-blue)
 ![Java](https://img.shields.io/badge/Java-17+-orange)
-```
-
----
-
-
-
-VelocityORM vs Default PetClinic
-
-Throughput comparison (higher is better) across benchmarked endpoints.
-
-endpoint	rps
-Default /vets	1,061
-Velocity /vets	1,076
-Default owner search	1,036
-Velocity owner search	1,109
-Default pagination	582
-Velocity pagination	620
-
-Average Latency Comparison
-
-Average response time (lower is better).
-
-endpoint	latency
-Default /vets	195
-Velocity /vets	189
-Default owner search	202
-Velocity owner search	189
-Default pagination	346
-Velocity pagination	321
-
