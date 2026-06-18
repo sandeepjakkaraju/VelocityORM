@@ -11,6 +11,8 @@ import com.velocityorm.core.query.Query;
 import com.velocityorm.core.security.EncryptionService;
 import com.velocityorm.core.tx.Session;
 import com.velocityorm.core.tx.SessionContext;
+import com.velocityorm.nativeorm.NativeCRUDOptimizer;
+import com.velocityorm.nativeorm.NativeRowIdentity;
 
 import java.sql.*;
 import java.util.*;
@@ -70,6 +72,20 @@ public abstract class BaseRepository<T, ID> implements Repository<T, ID> {
         }
         finally {
             SessionContext.clear();
+        }
+    }
+
+    private void markAsClean(T entity) {
+        if (entity == null) return;
+        ID id = meta.getId(entity);
+        if (id instanceof Number) {
+            try {
+                String state = objectMapper.writeValueAsString(entity);
+                long hash = NativeRowIdentity.calculateRowHash(state);
+                NativeCRUDOptimizer.markClean(((Number) id).longValue(), hash);
+            } catch (Exception e) {
+                System.err.println("Failed to mark clean for " + entity.getClass().getSimpleName() + ": " + e.getMessage());
+            }
         }
     }
 
@@ -136,6 +152,9 @@ public abstract class BaseRepository<T, ID> implements Repository<T, ID> {
             if (l2Cache != null) {
                 l2Cache.put(meta.getTableName(), id, entity);
             }
+
+            markAsClean(entity);
+
             return entity;
         }
     }
@@ -144,7 +163,21 @@ public abstract class BaseRepository<T, ID> implements Repository<T, ID> {
     public T update(T entity) throws SQLException {
         Session session = getSession();
         try {
-            return update(session, entity);
+            ID id = meta.getId(entity);
+            if (id instanceof Number) {
+                try {
+                    String state = objectMapper.writeValueAsString(entity);
+                    long currentHash = NativeRowIdentity.calculateRowHash(state);
+                    if (!NativeCRUDOptimizer.isDirty(((Number) id).longValue(), currentHash)) {
+                        return entity; // Skip update if not dirty
+                    }
+                } catch (Exception e) {
+                    // fall back
+                }
+            }
+            T updated = update(session, entity);
+            markAsClean(updated);
+            return updated;
         } finally {
             releaseSession(session);
         }
@@ -252,6 +285,7 @@ public abstract class BaseRepository<T, ID> implements Repository<T, ID> {
                     if (l2Cache != null) {
                         l2Cache.put(meta.getTableName(), id, entity);
                     }
+                    markAsClean(entity);
                     return Optional.of(entity);
                 } 
                 // For Oracle: get returns SYS_REFCURSOR as the second parameter
@@ -265,6 +299,7 @@ public abstract class BaseRepository<T, ID> implements Repository<T, ID> {
                             if (l2Cache != null) {
                                 l2Cache.put(meta.getTableName(), id, entity);
                             }
+                            markAsClean(entity);
                             return Optional.of(entity);
                         }
                     }
@@ -280,7 +315,8 @@ public abstract class BaseRepository<T, ID> implements Repository<T, ID> {
                                 if (l2Cache != null) {
                                     l2Cache.put(meta.getTableName(), id, entity);
                                 }
-                                return Optional.of(entity);
+                                markAsClean(entity);
+                            return Optional.of(entity);
                             }
                         }
                     }

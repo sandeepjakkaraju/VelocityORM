@@ -260,6 +260,9 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <jvmArguments>-Djava.library.path=${project.basedir}/../velocity-orm-native/src/main/rust/target/release --enable-native-access=ALL-UNNAMED</jvmArguments>
+        </configuration>
         <executions>
           <execution>
             <!-- Spring Boot Actuator displays build-related information

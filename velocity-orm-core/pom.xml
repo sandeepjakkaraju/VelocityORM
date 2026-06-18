@@ -13,6 +13,11 @@
     <name>VelocityORM Core</name>
 
     <dependencies>
+        <dependency>
+            <groupId>com.velocityorm</groupId>
+            <artifactId>velocity-orm-native</artifactId>
+        </dependency>
+
         <!-- Connection Pool -->
         <dependency>
             <groupId>com.zaxxer</groupId>

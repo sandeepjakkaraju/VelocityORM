@@ -5,6 +5,9 @@ import com.velocityorm.core.metadata.ColumnMeta;
 import com.velocityorm.core.metadata.EntityMeta;
 import com.velocityorm.core.tx.Session;
 import com.velocityorm.core.tx.SessionContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.velocityorm.nativeorm.NativeCRUDOptimizer;
+import com.velocityorm.nativeorm.NativeRowIdentity;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,6 +27,7 @@ public class Query<T> {
 
     private final List<Criterion> criteria = new ArrayList<>();
     private final List<Order> orderBy = new ArrayList<>();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private Integer limitVal;
     private Integer offsetVal;
 
@@ -165,7 +169,20 @@ public class Query<T> {
                     while (rs.next()) {
                         T entity = meta.mapRow(rs);
                         Object id = meta.getId(entity);
+                        System.out.println("---- PROCESSING ROW WITH ID: " + id + " TYPE: " + (id != null ? id.getClass().getName() : "null"));
                         session.getL1Cache().put(meta.getEntityClass(), id, entity);
+
+                        // Native: Mark Clean for tracking
+                        if (id instanceof Number) {
+                            try {
+                                String state = objectMapper.writeValueAsString(entity);
+                                long hash = NativeRowIdentity.calculateRowHash(state);
+                                NativeCRUDOptimizer.markClean(((Number) id).longValue(), hash);
+                            } catch (Exception e) {
+                                System.err.println("Query: Failed to mark clean for " + entity.getClass().getSimpleName() + ": " + e.getMessage());
+                            }
+                        }
+
                         results.add(entity);
                     }
                 }

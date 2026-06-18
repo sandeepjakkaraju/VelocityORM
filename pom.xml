@@ -13,6 +13,7 @@
     <description>A High-Performance Stored Procedure Based Java ORM</description>
 
     <modules>
+        <module>velocity-orm-native</module>
         <module>velocity-orm-core</module>
         <module>velocity-orm-processor</module>
         <module>velocity-orm-reactive</module>
@@ -59,6 +60,11 @@
             <dependency>
                 <groupId>com.velocityorm</groupId>
                 <artifactId>velocity-orm-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.velocityorm</groupId>
+                <artifactId>velocity-orm-native</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
