@@ -15,6 +15,13 @@ import java.sql.ResultSet;
 
 public class ArrowMapper {
 
+    static {
+        // Fix for Netty/Arrow Unsafe memory access on Java 17+ without requiring explicit JVM flags
+        System.setProperty("io.netty.tryReflectionSetAccessible", "true");
+        System.setProperty("arrow.enable_unsafe_memory_access", "true");
+        System.setProperty("arrow.allocation.manager.type", "Unsafe");
+    }
+
     private static final BufferAllocator rootAllocator = new RootAllocator();
 
     /**
